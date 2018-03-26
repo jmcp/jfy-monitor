@@ -154,7 +154,7 @@ JFYData = [
 
 JFYDivisors = [
     10.0,        # temperature
-    1.0,         # powerGenerated
+    10.0,         # powerGenerated
     10.0,        # voltageDC
     10.0,        # current
     10.0,        # voltageAC

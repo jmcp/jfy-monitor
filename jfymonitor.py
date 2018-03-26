@@ -151,6 +151,7 @@ def getline(stats=None):
     line = tstamp
     for idx, fname in enumerate(JFYData):
         line = line + "," + "{0}".format(stats[fname] / JFYDivisors[idx])
+    line = line + "\n"
     return line
 
 
@@ -286,10 +287,12 @@ class Inverter(threading.Thread):
         rotates it if necessary
         """
         curday = datetime.date.strftime(self.starttime, "%d")
-        if self.logfile and curday == self.day:
+        if self.logfile is not None and curday == self.day:
+            if self.debug:
+                print("not rotating logfile {0}".format(self.logfile))
             return
 
-        if self.logfile:
+        if self.logfile is not None:
             self.logfile.close()
             self.day = curday
 
@@ -297,7 +300,7 @@ class Inverter(threading.Thread):
         logname = os.path.join(self.logpath,
                                datetime.date.strftime(self.starttime,
                                                       "%Y/%m/%d"))
-        self.logfile = open(logname, "a")
+        self.logfile = open(logname, "a", buffering=1)
         if not self.logfile:
             print("Unable to open logfile {0}".format(logname))
             self.dev.close()
@@ -552,10 +555,11 @@ class Inverter(threading.Thread):
                 continue
             if self.debug:
                 print("stats {0}".format(stats))
+
             line = getline(stats)
 
             if self.logfile:
-                print(line, file=self.logfile)
+                self.logfile.write(line)
 
             # update sstored
             if self.usesstore:
@@ -575,10 +579,10 @@ class Inverter(threading.Thread):
                 if self.sst:
                     self.sst.free()
                     self.sst = None
-                    # close the logfile
-                    if self.logfile:
-                        self.logfile.close()
-                        self.logfile = None
+                # close the logfile
+                if self.logfile:
+                    self.logfile.close()
+                    self.logfile = None
                 break
             else:
                 time.sleep(30)
