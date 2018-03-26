@@ -1,0 +1,23 @@
+{
+    "$schema": "//:class",
+    "copyright": "Copyright (c) 2018, James C. McPherson. All rights reserved.",
+    "description": "JFY Solar Inverter monitor",
+    "id": "app/solar/jfy",
+    "namespaces": [
+        {
+            "name-type": "string",
+            "resource-name": "inverter"
+        }
+    ],
+    "stability": "stable",
+    "stat-names": [
+        "//:stat.temperature",
+        "//:stat.power-generated",
+        "//:stat.voltage-dc",
+        "//:stat.current",
+        "//:stat.voltage-ac",
+        "//:stat.energy-generated",
+        "//:stat.instantaneous-energy",
+        "//:stat.total-energy-today"
+    ]
+}

@@ -1,0 +1,15 @@
+
+[global]
+usesstore= True
+
+[inverter-1]
+devname=/dev/term/0
+pvoutput_sysid=
+pvoutput_apikey=
+
+[inverter-2]
+devname=/dev/infamous
+
+[inverter-3]
+devname=/dev/outoftouch
+

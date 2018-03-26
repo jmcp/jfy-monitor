@@ -1,0 +1,105 @@
+[
+    {
+        "$schema": "//:stat",
+        "copyright": "Copyright (c) 2018, James C. McPherson. All rights reserved.",
+        "description": "Temperature of the inverter",
+        "id": "//:class.app/solar/jfy//:stat.temperature",
+        "localize": [
+            "description"
+        ],
+	"multiplier": 10,
+        "stability": "stable",
+        "type": "scalar",
+        "units": "celsius"
+    },
+    {
+        "$schema": "//:stat",
+        "copyright": "Copyright (c) 2018, James C. McPherson. All rights reserved.",
+        "description": "Instantaneous power generated",
+        "id": "//:class.app/solar/jfy//:stat.power-generated",
+        "localize": [
+            "description"
+        ],
+	"multiplier": 10,
+        "stability": "stable",
+        "type": "scalar",
+        "units": "watts"
+    },
+    {
+        "$schema": "//:stat",
+        "copyright": "Copyright (c) 2018, James C. McPherson. All rights reserved.",
+        "description": "Voltage generated",
+        "id": "//:class.app/solar/jfy//:stat.voltage-dc",
+        "localize": [
+            "description"
+        ],
+	"multiplier": 10,
+        "stability": "stable",
+        "type": "scalar",
+        "units": "volts"
+    },
+    {
+        "$schema": "//:stat",
+        "copyright": "Copyright (c) 2018, James C. McPherson. All rights reserved.",
+        "description": "Current generated",
+        "id": "//:class.app/solar/jfy//:stat.current",
+        "localize": [
+            "description"
+        ],
+	"multiplier": 10,
+        "stability": "stable",
+        "type": "scalar",
+        "units": "amperes"
+    },
+    {
+        "$schema": "//:stat",
+        "copyright": "Copyright (c) 2018, James C. McPherson. All rights reserved.",
+        "description": "Voltage transformed",
+        "id": "//:class.app/solar/jfy//:stat.voltage-ac",
+        "localize": [
+            "description"
+        ],
+	"multiplier": 10,
+        "stability": "stable",
+        "type": "scalar",
+        "units": "volts"
+    },
+    {
+        "$schema": "//:stat",
+        "copyright": "Copyright (c) 2018, James C. McPherson. All rights reserved.",
+        "description": "Energy delivered to grid, in watt-hours",
+        "id": "//:class.app/solar/jfy//:stat.energy-generated",
+        "localize": [
+            "description"
+        ],
+	"multiplier": 100,
+        "stability": "stable",
+        "type": "scalar",
+        "units": "watts"
+    },
+    {
+        "$schema": "//:stat",
+        "copyright": "Copyright (c) 2018, James C. McPherson. All rights reserved.",
+        "description": "Instantaneous energy (KW/Hr)",
+        "id": "//:class.app/solar/jfy//:stat.instantaneous-energy",
+        "localize": [
+            "description"
+        ],
+        "stability": "stable",
+        "type": "rate",
+        "units": "watts"
+    },
+    {
+        "$schema": "//:stat",
+        "copyright": "Copyright (c) 2018, James C. McPherson. All rights reserved.",
+        "description": "Total energy generated today (KW/Hr)",
+        "id": "//:class.app/solar/jfy//:stat.total-energy-today",
+        "localize": [
+            "description"
+        ],
+	"multiplier": 10,
+        "stability": "stable",
+        "type": "counter",
+        "units": "watts"
+    }
+]
