@@ -461,7 +461,8 @@ class Inverter(threading.Thread):
             return
         self.isreg = True
         self.id = next_inv
-        print("Registration succeeded for device on {0}".format(self.devname))
+        print("Registration succeeded for device with "
+              "serial number {0} on {1}".format(self.hr_serial, self.devname))
         return
 
     def setup_sstore(self):
@@ -666,7 +667,7 @@ def main():
     cfgfile, logpath, oneshot, readcode, debug = parseargs(sys.argv[1:])
 
     if readcode:
-        print("The -r option is not supported yet")
+        print("The -x option is not supported yet")
         sys.exit(1)
 
     attached = parse_cfg(cfgfile, logpath)
