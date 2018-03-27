@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<!DOCTYPE service_bundle SYSTEM "/usr/share/lib/xml/dtd/service_bundle.dtd.1">
+<!--
+ Copyright (c) 2018, James C. McPherson. All rights reserved.
+
+    NOTE:  This service manifest is not editable; its contents will
+    be overwritten by package or patch operations, including
+    operating system upgrade.  Make customizations in a different
+    file.
+-->
+
+<service_bundle type='manifest' name='jfy'>
+
+<service
+	name='application/jfy'
+	type='service'
+	version='1'>
+
+	<create_default_instance enabled='false' />
+	
+	<!--
+	    We need /var/share to be mounted before we start.
+	-->
+	<dependency
+		name='filesystem'
+		type='service'
+		grouping='require_all'
+		restart_on='none'>
+		<service_fmri value='svc:/system/filesystem/local:default' />
+	</dependency>
+
+	<!--
+	    We need name services running so we can resolve pvoutput.org
+	-->
+	<dependency
+		name='nscd'
+		type='service'
+		grouping='require_all'
+		restart_on='none'>
+		<service_fmri value='svc:/milestone/name-services:default' />
+	</dependency>
+
+	<!-- Easiest if sstore is already up. -->
+	<dependency
+	    name='sstore'
+	    type='service'
+	    grouping='require_all'
+	    restart_on='refresh'>
+	  <service_fmri value='svc:/system/sstore:default' />
+	</dependency>
+
+	<method_context>
+		<method_credential user='solar' group='solar'/>
+	</method_context>
+
+	<exec_method
+		type='method'
+		name='start'
+		exec='/lib/svc/method/svc-jfy %m'
+		timeout_seconds='60' />
+
+	<exec_method
+		type='method'
+		name='stop'
+		exec='/lib/svc/method/svc-jfy %m'
+		timeout_seconds='60' />
+
+	<!-- sstore authorizations -->
+	<property_group name="general" type="framework">
+		<propval name="action_authorization" type="astring"
+			value="solaris.sstore.update.res" />
+		<propval name="value_authorization" type="astring"
+			value="solaris.sstore.write" />
+	</property_group>
+
+
+	<property_group name='config' type='application'>
+		<propval name='logpath' type='astring'
+		    value='/var/share/jfy/log/' />
+	</property_group>
+
+	<template>
+		<common_name>
+			<loctext xml:lang='C'>
+				JFY Inverter monitoring daemon
+			</loctext>
+		</common_name>
+		<description>
+		  <loctext xml:lang='C'>
+		    Capture data from JFY Inverters.
+		  </loctext>
+		</description>
+		<documentation>
+			<manpage title='jfymonitor' section='1'
+			    manpath='/usr/share/man' />
+		</documentation>
+
+		<pg_pattern name='config' type='application' target='this'
+		    required='true'>
+			<description>
+				<loctext xml:lang='C'>
+				  Configuration options for jfymonitor.
+				</loctext>
+			</description>
+
+		</pg_pattern>
+	</template>
+
+</service>
+
+</service_bundle>

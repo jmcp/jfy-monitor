@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/python3.4
 
 #
 # Copyright (c) 2013, 2018 James C. McPherson.  All Rights Reserved
@@ -645,7 +645,6 @@ def parse_cfg(cfgfile, logpath):
         # Not enough sections
         print("Supplied configuration file {0} is incorrectly formed:\n"
               "no [global] section found".format(cfgfile), file=sys.stderr)
-        #sys.exit(1)
     usesstore = cfg['global']['usesstore'] or False
     # Now to deal with the inverters
     cfg.remove_section("global")
@@ -684,19 +683,33 @@ def main():
     for inv in attached:
         thrlist.append(Inverter(inv, oneshot, debug))
 
-    for thr in thrlist:
-        thr.setup()
-        if not thr.isreg:
-            # didn't get registration
-            print("Registration failed, removing thr {0}".format(thr))
-            thrlist.remove(thr)
-            continue
-        thr.setName("inverter-" + thr.hr_serial)
+    if len(thrlist) > 0:
+        # Child process (run threads)
+        for thr in thrlist:
+            thr.setup()
+            if not thr.isreg:
+                # didn't get registration
+                print("Registration failed, removing thr {0}".format(thr))
+                thrlist.remove(thr)
+                continue
+            thr.setName("inverter-" + thr.hr_serial)
 
     if len(thrlist) > 0:
-        for pthr in thrlist:
-            pthr.start()
+        try:
+            _pid = os.fork()
+        except OSError as err:
+            print("Error encountered when forking jfymonitor process: "
+                  "{0}".format(err))
+        if _pid == 0:
+            for _thr in thrlist:
+                _thr.run()
+    else:
+        print("No inverters passed registration for monitoring",
+              file=sys.stderr)
+        # SMF_ERR_EXIT_CONFIG
+        sys.exit(96)
 
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
