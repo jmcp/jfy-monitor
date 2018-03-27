@@ -297,9 +297,18 @@ class Inverter(threading.Thread):
             self.day = curday
 
         # Can we open the logfile for writing?
-        logname = os.path.join(self.logpath,
-                               datetime.date.strftime(self.starttime,
-                                                      "%Y/%m/%d"))
+
+        logdir = os.path.join(os.path.join(self.logpath, self.hr_serial),
+                              datetime.date.strftime(self.starttime,
+                                                     "%Y/%m"))
+        try:
+            _statbuf = os.stat(logdir)
+        except FileNotFoundError as _exc:
+            if self.debug:
+                print("Creating toplevel logdir {0}".format(logdir))
+            os.makedirs(logdir)
+
+        logname = os.path.join(logdir, curday)
         self.logfile = open(logname, "a", buffering=1)
         if not self.logfile:
             print("Unable to open logfile {0}".format(logname))
@@ -526,9 +535,6 @@ class Inverter(threading.Thread):
             print("{0} : {1}".format(serex.errno, serex.strerror))
             return
 
-        # logfile checking:
-        self.logrotate()
-
         # Register with the inverter
         self.register()
         if not self.isreg:
@@ -536,6 +542,9 @@ class Inverter(threading.Thread):
             self.dev.close()
             self.dev = None
             return
+
+        # logfile checking:
+        self.logrotate()
 
         # Using sstored?
         if self.usesstore:
