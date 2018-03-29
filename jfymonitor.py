@@ -181,7 +181,7 @@ def decode_pkt(bytestream):
     # Use network byte order
     try:
         predata = struct.unpack('!H5B', bytestream[0:7])
-    except error as err:
+    except struct.error as _err:
         # We need to handle this up the call stack
         return None
 
@@ -258,7 +258,7 @@ class Inverter(threading.Thread):
         self.isreg = None       # are we registered with the inverter?
         self.serial = None      # inverter serial number
         self.hr_serial = None   # human-readable form of serial number
-        self.id = None          # inverter ID in the map
+        self.idx = None          # inverter ID in the map
         self.stats = None       # stat names
         self.stats_array = None # array of stats for updating sstored
         threading.Thread.__init__(self)
@@ -326,7 +326,7 @@ class Inverter(threading.Thread):
         """ Queries the inverter for instantaneous data. """
 
         # We assume that the inverter is online;
-        pkt = create_pkt(APid, self.id, CtrlCodes['Read'],
+        pkt = create_pkt(APid, self.idx, CtrlCodes['Read'],
                          ReadCodes['QueryNormalInfo'], data=None)
 
         inpkt = self.xfer_pkt(pkt)
@@ -481,7 +481,7 @@ class Inverter(threading.Thread):
             print("Got garbage response (2): {0}".format(response))
             return
         self.isreg = True
-        self.id = next_inv
+        self.idx = next_inv
         print("Registration succeeded for device with "
               "serial number {0} on {1}".format(self.hr_serial, self.devname))
         return
