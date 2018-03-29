@@ -73,7 +73,6 @@ field to an [inverter-$N] section.
 External dependency: [pySerial][https://pypi.python.org/pypi/pyserial]
 """
 
-import array
 import configparser
 import datetime
 import getopt
@@ -180,7 +179,12 @@ def decode_pkt(bytestream):
     data.
     """
     # Use network byte order
-    predata = struct.unpack('!H5B', bytestream[0:7])
+    try:
+        predata = struct.unpack('!H5B', bytestream[0:7])
+    except error as err:
+        # We need to handle this up the call stack
+        return None
+
     datalen = predata[5]
     rval = {}
     rval['src'] = predata[1]
@@ -225,9 +229,9 @@ def create_pkt(src, dest, ctrl, func, data):
     csum = checksum(prepkt, False)
     prepkt.extend(csum['value'])
     prepkt.extend(jfyEnder)
-    pkt = array.array("B")
-    pkt.fromlist(prepkt)
-    return pkt.tobytes()
+    pkt = struct.pack("{0}B".format(len(prepkt)), *prepkt)
+    return pkt
+
 
 
 class Inverter(threading.Thread):
@@ -286,15 +290,17 @@ class Inverter(threading.Thread):
         Checks whether the logfile needs rotating (per-day), and
         rotates it if necessary
         """
+
         curday = datetime.date.strftime(self.starttime, "%d")
-        if self.logfile is not None and curday == self.day:
-            if self.debug:
-                print("not rotating logfile {0}".format(self.logfile))
-            return
 
         if self.logfile is not None:
-            self.logfile.close()
-            self.day = curday
+            if curday == self.day:
+                if self.debug:
+                    print("not rotating logfile {0}".format(self.logfile))
+                    return
+            else:
+                self.logfile.close()
+                self.day = curday
 
         # Can we open the logfile for writing?
 
@@ -331,7 +337,7 @@ class Inverter(threading.Thread):
             return
         response = decode_pkt(inpkt)
         # Boo - didn't get a valid packet
-        if not response['chksum']['ok']:
+        if not response or not response['chksum']['ok']:
             return dict(zip(JFYData, JFYEmpty))
 
         rvals = []
@@ -434,6 +440,9 @@ class Inverter(threading.Thread):
                          data=None)
         inpkt = self.xfer_pkt(pkt)
         response = decode_pkt(inpkt)
+        if not response:
+            print("Empty response from decode_pkt (1)")
+            return
         # Sanity-check the packet values
         if response['src'] != 0 or \
            response['dest'] != 0 or \
@@ -449,7 +458,7 @@ class Inverter(threading.Thread):
         # remove any trailing whitespace
         self.hr_serial = self.hr_serial.strip()
 
-        _INVERTER_MAP[next_inv] = self.serial
+        _INVERTER_MAP[next_inv] = self.hr_serial
 
         # We do this in two steps so that create_pkt generates things correctly
         serial_reg = self.serial
@@ -460,6 +469,9 @@ class Inverter(threading.Thread):
         inpkt = self.xfer_pkt(pkt)
         response = decode_pkt(inpkt)
         # Sanity-check the packet values
+        if not response:
+            print("Empty response from decode_pkt (2)")
+            return
         if response['src'] != next_inv or \
            response['dest'] != APid or \
            response['ctrl'] != CtrlCodes['Register'] or \
@@ -693,6 +705,11 @@ def main():
                 thrlist.remove(thr)
                 continue
             thr.setName("inverter-" + thr.hr_serial)
+
+    if debug:
+        print("Inverter map:")
+        for index in _INVERTER_MAP:
+            print("id {0:3}: {1}".format(index, _INVERTER_MAP[index]))
 
     if len(thrlist) > 0:
         try:
