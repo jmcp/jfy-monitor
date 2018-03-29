@@ -1,0 +1,18 @@
+
+Corrects the device name pattern that we check for on Solaris 
+
+--- pyserial-3.4/serial/tools/list_ports_posix.py.orig	2018-03-12 12:19:24.963719364 +1000
++++ pyserial-3.4/serial/tools/list_ports_posix.py	2018-03-12 12:19:46.853634060 +1000
+@@ -79,11 +79,11 @@
+         return [list_ports_common.ListPortInfo(d) for d in devices]
+ 
+ elif plat[:5] == 'sunos':    # Solaris/SunOS
+     def comports(include_links=False):
+         """scan for available ports. return a list of device names."""
+-        devices = glob.glob('/dev/tty*c')
++        devices = glob.glob('/dev/term/*')
+         if include_links:
+             devices.extend(list_ports_common.list_links(devices))
+         return [list_ports_common.ListPortInfo(d) for d in devices]
+ 
+ elif plat[:3] == 'aix':      # AIX

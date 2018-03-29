@@ -1,0 +1,61 @@
+
+Updates the serialposix module so that we get correct behaviour on Solaris 11.
+
+
+--- pyserial-3.4/serial/serialposix.py.orig	2018-03-22 12:55:55.807806415 +1000
++++ pyserial-3.4/serial/serialposix.py	2018-03-22 15:32:52.762972285 +1000
+@@ -323,24 +323,36 @@
+             orig_attr = termios.tcgetattr(self.fd)
+             iflag, oflag, cflag, lflag, ispeed, ospeed, cc = orig_attr
+         except termios.error as msg:      # if a port is nonexistent but has a /dev file, it'll fail here
+             raise SerialException("Could not configure port: {}".format(msg))
+         # set up raw mode / no echo / binary
++        # Solaris does this a little differently to other UNIX-like platforms
++        if plat != "sunos5":
+         cflag |= (termios.CLOCAL | termios.CREAD)
+         lflag &= ~(termios.ICANON | termios.ECHO | termios.ECHOE |
+                    termios.ECHOK | termios.ECHONL |
+                    termios.ISIG | termios.IEXTEN)  # |termios.ECHOPRT
+         for flag in ('ECHOCTL', 'ECHOKE'):  # netbsd workaround for Erk
+             if hasattr(termios, flag):
+                 lflag &= ~getattr(termios, flag)
+ 
+         oflag &= ~(termios.OPOST | termios.ONLCR | termios.OCRNL)
+-        iflag &= ~(termios.INLCR | termios.IGNCR | termios.ICRNL | termios.IGNBRK)
++                    iflag &= ~(termios.INLCR | termios.IGNCR | termios.ICRNL
++                               | termios.IGNBRK)
+         if hasattr(termios, 'IUCLC'):
+             iflag &= ~termios.IUCLC
+         if hasattr(termios, 'PARMRK'):
+             iflag &= ~termios.PARMRK
++        else:
++            cflag &= ~(termios.CSIZE|termios.PARENB)
++            cflag |= termios.CS8
++            iflag &= ~(termios.IGNBRK|termios.BRKINT|termios.PARMRK|
++                       termios.ISTRIP|termios.INLCR|termios.IGNCR|
++                       termios.ICRNL|termios.IXON)
++            oflag &= ~termios.OPOST
++            lflag &= ~(termios.ECHO|termios.ECHONL|termios.ICANON|
++                       termios.ISIG|termios.IEXTEN)
+ 
+         # setup baud rate
+         try:
+             ispeed = ospeed = getattr(termios, 'B{}'.format(self._baudrate))
+         except AttributeError:
+@@ -461,11 +473,15 @@
+     #  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+ 
+     @property
+     def in_waiting(self):
+         """Return the number of bytes currently in the input buffer."""
+-        #~ s = fcntl.ioctl(self.fd, termios.FIONREAD, TIOCM_zero_str)
++        if plat == "sunos5":
++            # 0x4004667f is FIONREAD, which the Solaris implementation of Python3.4 
++            # seems to have missed out.
++            s = fcntl.ioctl(self.fd, 0x4004667f, TIOCM_zero_str)
++        else:
+         s = fcntl.ioctl(self.fd, TIOCINQ, TIOCM_zero_str)
+         return struct.unpack('I', s)[0]
+ 
+     # select based implementation, proved to work on many systems
+     def read(self, size=1):
