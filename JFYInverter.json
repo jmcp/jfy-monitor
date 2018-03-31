@@ -1,0 +1,73 @@
+{
+    "$schema": "file:///analytics-import.schema.json",
+    "v1": {
+        "groups": [
+            {
+                "description": "This sheet displays useful statistics gathered from attached JFY SunTwins inverters. It is modeled on the data which is also sent to https://pvoutput.org.",
+                "uniqueName": "PV Inverter useful statistics",
+                "visualizations": [
+                    "Generated Power",
+                    "Generated energy",
+                    "Generated Voltages",
+                    "Inverter Temperature"
+                ]
+            }
+        ],
+        "sections": [
+            {
+                "groups": [
+                    "PV Inverter useful statistics"
+                ],
+                "uniqueName": "JFY SunTwins PV Inverter"
+            }
+        ],
+        "sheets": [
+            {
+                "description": "Sheet to visualise the data coming from a JFY-5000TL inverter",
+                "sections": [
+                    "JFY SunTwins PV Inverter"
+                ],
+                "tags": [
+                    "JFY, solar, PV, inverter"
+                ],
+                "timeRangeEndTime": -1,
+                "uniqueName": "JFY Inverter"
+            }
+        ],
+        "visualizations": [
+            {
+                "ssids": [
+                    "//:class.app/solar/jfy//:res.inverter/*//:stat.voltage-ac",
+                    "//:class.app/solar/jfy//:res.inverter/*//:stat.voltage-dc"
+                ],
+                "style": "time-comparison",
+                "timeRangeEndTime": -1,
+                "uniqueName": "Generated Voltages"
+            },
+            {
+                "ssids": [
+                    "//:class.app/solar/jfy//:res.inverter/*//:stat.temperature"
+                ],
+                "style": "instant-gauge",
+                "timeRangeEndTime": -1,
+                "uniqueName": "Inverter Temperature"
+            },
+            {
+                "ssids": [
+                    "//:class.app/solar/jfy//:res.inverter/*//:stat.energy-generated"
+                ],
+                "style": "time-comparison",
+                "timeRangeEndTime": -1,
+                "uniqueName": "Generated energy"
+            },
+            {
+                "ssids": [
+                    "//:class.app/solar/jfy//:res.inverter/*//:stat.power-generated"
+                ],
+                "style": "time-series-stacked",
+                "timeRangeEndTime": -1,
+                "uniqueName": "Generated Power"
+            }
+        ]
+    }
+}
