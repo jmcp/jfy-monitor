@@ -343,10 +343,9 @@ class Inverter(threading.Thread):
         rvals = []
         normalinfo = response['pktdata']
         # See comment atop definition of JFYData. We return the un-scaled
-        # data; our output functions (csv, pvoutput) handle that for us.
-        # sstored knows how to handle multipliers.
-        for idx in range(0, 20, 2):
-            if idx == 14 or idx == 16:
+        # data; our output functions handle scaling for us.
+        for idx in range(0, 16, 2):
+            if idx == 8 or idx == 12:
                 # these are the 'ignore' fields
                 continue
             rvals.append((normalinfo[idx] << 8) | normalinfo[idx+1])
@@ -372,7 +371,10 @@ class Inverter(threading.Thread):
         """
         values = {}
         for idx, fname in enumerate(JFYData):
-            values[self.stats[idx]] = vals[fname]
+            values[self.stats[idx]] = vals[fname] / JFYDivisors[idx]
+
+        if self.debug:
+            print("sstore updated with values {0}".format(values))
         self.sst.data_update(values)
 
     def pvoutput_update(self, vals):
@@ -385,12 +387,12 @@ class Inverter(threading.Thread):
         if curtime.minute % 5 != 0:
             return
         valdata = {
-            'd': curtime.strftime("%Y%m%d"), # date
-            't': curtime.strftime("%H:%M"),  # time
-            'v1': vals['energyGenerated']/JFYDivisors[5],     # energy
-            'v2': vals['powerGenerated'] / JFYDivisors[1],    # power
-            'v5': vals['temperature'] / JFYDivisors[0],       # temperature
-            'v6': vals['voltageDC'] / JFYDivisors[2]          # Vdc
+            'd': curtime.strftime("%Y%m%d"),                 # date
+            't': curtime.strftime("%H:%M"),                  # time
+            'v1': vals['energyGenerated'] / JFYDivisors[5],  # energy
+            'v2': vals['powerGenerated'] / JFYDivisors[1],   # power
+            'v5': vals['temperature'] / JFYDivisors[0],      # temperature
+            'v6': vals['voltageDC'] / JFYDivisors[2]         # Vdc
         }
         data = urllib.parse.urlencode(valdata)
         data = data.encode("ascii")
@@ -605,7 +607,7 @@ class Inverter(threading.Thread):
                 if self.logfile:
                     self.logfile.close()
                     self.logfile = None
-                break
+                return
             else:
                 time.sleep(30)
 
@@ -696,7 +698,6 @@ def main():
         thrlist.append(Inverter(inv, oneshot, debug))
 
     if len(thrlist) > 0:
-        # Child process (run threads)
         for thr in thrlist:
             thr.setup()
             if not thr.isreg:
@@ -718,6 +719,7 @@ def main():
             print("Error encountered when forking jfymonitor process: "
                   "{0}".format(err))
         if _pid == 0:
+            # Child process (run threads)
             for _thr in thrlist:
                 _thr.run()
     else:
