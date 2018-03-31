@@ -7,7 +7,6 @@
         "localize": [
             "description"
         ],
-	"multiplier": 10,
         "stability": "stable",
         "type": "scalar",
         "units": "celsius"
@@ -20,7 +19,6 @@
         "localize": [
             "description"
         ],
-	"multiplier": 10,
         "stability": "stable",
         "type": "scalar",
         "units": "watts"
@@ -33,7 +31,6 @@
         "localize": [
             "description"
         ],
-	"multiplier": 10,
         "stability": "stable",
         "type": "scalar",
         "units": "volts"
@@ -46,7 +43,6 @@
         "localize": [
             "description"
         ],
-	"multiplier": 10,
         "stability": "stable",
         "type": "scalar",
         "units": "amperes"
@@ -59,7 +55,6 @@
         "localize": [
             "description"
         ],
-	"multiplier": 10,
         "stability": "stable",
         "type": "scalar",
         "units": "volts"
@@ -72,34 +67,8 @@
         "localize": [
             "description"
         ],
-	"multiplier": 100,
         "stability": "stable",
         "type": "scalar",
-        "units": "watts"
-    },
-    {
-        "$schema": "//:stat",
-        "copyright": "Copyright (c) 2018, James C. McPherson. All rights reserved.",
-        "description": "Instantaneous energy (KW/Hr)",
-        "id": "//:class.app/solar/jfy//:stat.instantaneous-energy",
-        "localize": [
-            "description"
-        ],
-        "stability": "stable",
-        "type": "rate",
-        "units": "watts"
-    },
-    {
-        "$schema": "//:stat",
-        "copyright": "Copyright (c) 2018, James C. McPherson. All rights reserved.",
-        "description": "Total energy generated today (KW/Hr)",
-        "id": "//:class.app/solar/jfy//:stat.total-energy-today",
-        "localize": [
-            "description"
-        ],
-	"multiplier": 10,
-        "stability": "stable",
-        "type": "counter",
         "units": "watts"
     }
 ]

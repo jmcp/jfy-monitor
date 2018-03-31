@@ -16,8 +16,6 @@
         "//:stat.voltage-dc",
         "//:stat.current",
         "//:stat.voltage-ac",
-        "//:stat.energy-generated",
-        "//:stat.instantaneous-energy",
-        "//:stat.total-energy-today"
+        "//:stat.energy-generated"
     ]
 }
