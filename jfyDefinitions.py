@@ -144,30 +144,28 @@ JFYData = [
     "powerGenerated",     #   2-3 watts
     "voltageDC",          #   4-5 volts
     "current",            #   6-7 amps
-    "voltageAC",          #   8-9 volts
+    #ignored,             #   8-9 ignored
     "energyGenerated",    # 10-11 watt-hours
-    "energyInst",         # 12-13 KW/Hr instantaneous energy
-    #"ignore1",           # 14-15 ignored
-    #"ignore2",           # 16-17 ignored
-    "energyTodayTotal"    # 18-19 Kw/Hr today's cumulative energy total
+    #ignored,             # 12-13 KW/Hr instantaneous energy
+    "voltageAC",          # 14-15 volts
+    #ignore2,             # 16-17 ignored
+    #ignore3              # 18-19 ignored
     ]
 
 JFYDivisors = [
     10.0,        # temperature
-    10.0,         # powerGenerated
+    10.0,        # powerGenerated
     10.0,        # voltageDC
     10.0,        # current
-    10.0,        # voltageAC
     0.1,         # energyGenerated
-    1.0,         # instantaneous energy
-    100.0        # energyTodayTotal
+    10.0         # voltageAC
 ]
 
 
 # We might receive garbage or null responses from the inverter,
 # sending back a list of 0s allows us to continue without having
 # to muck about with exceptions.
-JFYEmpty = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+JFYEmpty = [0, 0, 0, 0, 0, 0]
 
 RESOURCE_SSID_PREFIX = "//:class.app/solar/jfy//:res.inverter/"
 
@@ -176,10 +174,8 @@ STATS = [
     "power-generated",
     "voltage-dc",
     "current",
-    "voltage-ac",
     "energy-generated",
-    "instantaneous-energy",
-    "total-energy-today"
+    "voltage-ac"
     ]
 
 # Basic url to connect to for PVOutput.org
