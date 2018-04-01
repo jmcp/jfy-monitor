@@ -389,7 +389,7 @@ class Inverter(threading.Thread):
         valdata = {
             'd': curtime.strftime("%Y%m%d"),                 # date
             't': curtime.strftime("%H:%M"),                  # time
-            'v1': vals['energyGenerated'] / JFYDivisors[5],  # energy
+            'v1': vals['energyGenerated'] / JFYDivisors[4],  # energy
             'v2': vals['powerGenerated'] / JFYDivisors[1],   # power
             'v5': vals['temperature'] / JFYDivisors[0],      # temperature
             'v6': vals['voltageDC'] / JFYDivisors[2]         # Vdc
