@@ -246,9 +246,9 @@ class Inverter(threading.Thread):
         self.sysid = inv['sysid']
         self.logpath = inv['logpath']
         self.oneshot = oneshot
-        self.starttime = datetime.datetime.now()
+        starttime = datetime.datetime.now()
         # for rotating the logfile
-        self.day = datetime.date.strftime(self.starttime, "%d")
+        self.day = datetime.date.strftime(starttime, "%d")
         self.debug = debug
 
         # properties filled in via setup()
@@ -291,12 +291,14 @@ class Inverter(threading.Thread):
         rotates it if necessary
         """
 
-        curday = datetime.date.strftime(self.starttime, "%d")
+        now = datetime.datetime.now()
+        curday = datetime.date.strftime(now, "%d")
 
         if self.logfile is not None:
             if curday == self.day:
                 if self.debug:
-                    print("not rotating logfile {0}".format(self.logfile))
+                    print("curday {0} self.day {1}: not rotating "
+                          "logfile {2}".format(curday, self.day, self.logfile))
                     return
             else:
                 self.logfile.close()
@@ -305,8 +307,7 @@ class Inverter(threading.Thread):
         # Can we open the logfile for writing?
 
         logdir = os.path.join(os.path.join(self.logpath, self.hr_serial),
-                              datetime.date.strftime(self.starttime,
-                                                     "%Y/%m"))
+                              datetime.date.strftime(now, "%Y/%m"))
         try:
             _statbuf = os.stat(logdir)
         except FileNotFoundError as _exc:
