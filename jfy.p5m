@@ -1,0 +1,47 @@
+#
+# Copyright (c) 2018, James C. McPherson. All rights reserved.
+#
+
+# We only include directories that are not already delivered by other
+# packages installed on the system.
+
+set name=pkg.fmri value=pkg:/service/jfy@1.0.0
+set name=pkg.summary value="JFY inverter monitor"
+set name=pkg.description \
+    value="A python monitor daemon for JFY SunTwins PV inverters"
+set name=name value=info.classification \
+    value="org.opensolaris.category.2008:Applications/System Utilities"
+file path=lib/svc/manifest/site/jfy.xml owner=solar group=solar mode=0444
+file path=lib/svc/method/svc-jfy owner=solar group=solar mode=0555
+dir  path=usr/lib/jfy owner=solar group=solar mode=0555
+file path=usr/lib/jfy/jfyDefinitions.py owner=solar group=solar mode=0444
+file path=usr/lib/jfy/jfymonitor.py owner=solar group=solar mode=0555
+file path=usr/lib/sstore/metadata/collections/solar.jfy.json owner=solar \
+    group=solar mode=0444
+file path=usr/lib/sstore/metadata/json/site/class.app.solar.jfy.json \
+    owner=solar group=solar mode=0444
+file path=usr/lib/sstore/metadata/json/site/stat.app.solar.jfy.json \
+    owner=solar group=solar mode=0444
+file path=usr/lib/webui/analytics/sheets/site/JFYInverter.json owner=solar \
+    group=solar mode=0444
+
+# The fs location var/share is a protected species since it is shared between
+# boot environments. Content that goes here is put in var/.migrate and
+# migrated for us at boot by fs-minimal
+
+dir  path=var/.migrate/jfy owner=solar group=solar mode=0755
+file path=var/.migrate/jfy/Acknowledgements.md owner=solar group=solar mode=0444
+file path=var/.migrate/jfy/LICENSE owner=solar group=solar mode=0444
+file path=var/.migrate/jfy/README.md owner=solar group=solar mode=0444
+link path=var/jfy target=../var/share/jfy
+group groupname=solar gid=1000
+user username=solar ftpuser=false gcos-field="JFY Inverter monitor" \
+    group=solar home-dir=/var/jfy lastchg=6445 login-shell=/bin/bash \
+    passwd=NP uid=1001
+license var/.migrate/jfy/LICENSE license=var/.migrate/jfy/LICENSE
+depend type=require fmri=pkg:/runtime/python-27
+depend type=require fmri=pkg:/runtime/python-34
+depend type=require fmri=pkg:/service/system/sstore
+
+# If we had a Solaris-delivered pyserial package, then we'd add that
+# as a dependency too.

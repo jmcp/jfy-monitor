@@ -20,8 +20,8 @@ import sys
 
 
 SVCPROP = "/usr/bin/svcprop"
-CFGFNAME = "/var/share/jfy/cfg"
-LOGPATH = "/var/share/jfy/log"
+CFGFNAME = "/var/jfy/cfg"
+LOGPATH = "/var/jfy/log"
 
 GLOBAL_SECT = """
 [global]
@@ -50,7 +50,7 @@ def start():
     cfgf.write(cfgfile)
     cfgf.close()
 
-    args = ["/var/share/jfy/jfymonitor.py", "-F", CFGFNAME]
+    args = ["/usr/lib/jfy/jfymonitor.py", "-F", CFGFNAME]
     args.append("-l")
     args.append(LOGPATH)
     if debug:

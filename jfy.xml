@@ -76,7 +76,7 @@
 
 	<property_group name='config' type='application'>
 		<propval name='logpath' type='astring'
-		    value='/var/share/jfy/log/' />
+		    value='/var/jfy/log/' />
 	</property_group>
 
 	<template>
