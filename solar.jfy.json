@@ -1,0 +1,13 @@
+[
+    {
+        "$schema": "//:collection",
+        "copyright": "Copyright (c) 2018, James C. McPherson. All rights reserved.",
+        "description": "JFY inverter statistics",
+        "enabled": true,
+        "id": "jfy",
+        "ssids": [
+            "//:class.app/solar/jfy//:res.inverter/*//:stat.*"
+        ],
+        "user": "solar"
+    }
+]
