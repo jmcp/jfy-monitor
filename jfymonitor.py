@@ -101,9 +101,10 @@ from jfyDefinitions import (CtrlCodes, UnsupportedOpCodes, RegisterCodes,
 
 
 # This is a little bit ugly
-OSNAME, HOST, BIGREL, DETREL = platform.uname()[0:4]
+OSNAME, _HOST, _BIGREL, DOTREL = platform.uname()[0:4]
 if OSNAME == "SunOS":
-    if DETREL.startswith("11.4"):
+    majrel, minrel = DOTREL.split(".")[0:2]
+    if int(minrel) >= 4:
         from libsstore import SStore, SSException
 
 
@@ -278,7 +279,7 @@ class Inverter(threading.Thread):
             # the largest packet received is 64 bytes *following* the
             # 7 bytes of header content.
             time.sleep(1)
-            rpkt = self.dev.read_all()
+            rpkt = self.dev.read_until(terminator=b'\n\r')
             if len(rpkt) > 0:
                 if self.debug:
                     print("response {0}".format(rpkt))
@@ -301,6 +302,9 @@ class Inverter(threading.Thread):
                           "logfile {2}".format(curday, self.day, self.logfile))
                     return
             else:
+                if self.debug:
+                    print("Rotating logfile, curday {0} != self.day {1}".
+                          format(curday, self.day))
                 self.logfile.close()
                 self.day = curday
 
