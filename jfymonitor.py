@@ -234,7 +234,6 @@ def create_pkt(src, dest, ctrl, func, data):
     return pkt
 
 
-
 class Inverter(threading.Thread):
     """ It's a collection of tubes """
 
@@ -253,15 +252,15 @@ class Inverter(threading.Thread):
         self.debug = debug
 
         # properties filled in via setup()
-        self.dev = None         # file handle for the monitoring device
-        self.logfile = None     # full OS path to logfile
-        self.sst = None         # handle to sstored
-        self.isreg = None       # are we registered with the inverter?
-        self.serial = None      # inverter serial number
-        self.hr_serial = None   # human-readable form of serial number
+        self.dev = None          # file handle for the monitoring device
+        self.logfile = None      # full OS path to logfile
+        self.sst = None          # handle to sstored
+        self.isreg = None        # are we registered with the inverter?
+        self.serial = None       # inverter serial number
+        self.hr_serial = None    # human-readable form of serial number
         self.idx = None          # inverter ID in the map
-        self.stats = None       # stat names
-        self.stats_array = None # array of stats for updating sstored
+        self.stats = None        # stat names
+        self.stats_array = None  # array of stats for updating sstored
         threading.Thread.__init__(self)
 
     def xfer_pkt(self, bytestream):
@@ -313,7 +312,7 @@ class Inverter(threading.Thread):
         logdir = os.path.join(os.path.join(self.logpath, self.hr_serial),
                               datetime.date.strftime(now, "%Y/%m"))
         try:
-            _statbuf = os.stat(logdir)
+            _statbuf = os.stat(logdir)  # noqa: F841
         except FileNotFoundError as _exc:
             if self.debug:
                 print("Creating toplevel logdir {0}".format(logdir))
@@ -569,7 +568,6 @@ class Inverter(threading.Thread):
         if self.usesstore:
             self.setup_sstore()
 
-
     def run(self):
         """ This is where we do all the work. """
         while True:
@@ -734,6 +732,7 @@ def main():
         sys.exit(96)
 
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
