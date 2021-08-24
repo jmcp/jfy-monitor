@@ -1,0 +1,23 @@
+#
+# Copyright (c) 2021, James C. McPherson. All rights reserved
+#
+
+#
+# start and stop methods for the JFY inverter monitoring daemon
+#
+
+
+[Unit]
+Description=JFY PV Inverter monitor daemon
+After=network-online.target
+
+[Service]
+Type=forking
+ExecStart=/opt/jfy/v-3.9/bin/python3 /opt/jfy/jfymonitor.py -F /opt/jfy/cfg -l /opt/jfy/log/
+ExecStop=/usr/bin/pkill jfymonitor
+User=solar
+TimeoutSec=180s
+
+[Install]
+WantedBy=multi-user.target
+
