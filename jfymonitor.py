@@ -1,8 +1,7 @@
-#! /usr/bin/python3.4
+#! /usr/bin/python3
 
 #
-# Copyright (c) 2013, 2018 James C. McPherson.  All Rights Reserved
-#
+# Copyright (c) 2013, 2021 James C. McPherson.  All Rights Reserved
 #
 
 #
@@ -163,13 +162,13 @@ def checksum(packet=None, verify=False):
         pval = struct.unpack("!H", packet[-2:])[0]
         tval = 1 + (sum(packet[:-2]) ^ 0xffff)
         if tval == pval:
-            rdict['ok'] = True
+            rdict["ok"] = True
         else:
-            rdict['ok'] = False
-            rdict['expected'] = tval
+            rdict["ok"] = False
+            rdict["expected"] = tval
     else:
         tval = 1 + (sum(packet) ^ 0xffff)
-    rdict['value'] = [tval >> 8, tval & 0x00ff]
+    rdict["value"] = [tval >> 8, tval & 0x00ff]
     return rdict
 
 
@@ -188,9 +187,9 @@ def decode_pkt(bytestream):
 
     datalen = predata[5]
     rval = {}
-    rval['src'] = predata[1]
-    rval['dest'] = predata[2]
-    rval['ctrl'] = predata[3]
+    rval["src"] = predata[1]
+    rval["dest"] = predata[2]
+    rval["ctrl"] = predata[3]
     jumper = {}
     if predata[3] == 0x30:
         jumper = RegisterCodes
@@ -198,16 +197,16 @@ def decode_pkt(bytestream):
         jumper = ReadCodes
     else:
         jumper = UnsupportedOpCodes
-    # if we're seeing Write or Execute, this gives us None, which is ok.
-    rval['func'] = jumper.get(predata[4])
-    rval['dlen'] = datalen
+    # if we"re seeing Write or Execute, this gives us None, which is ok.
+    rval["func"] = jumper.get(predata[4])
+    rval["dlen"] = datalen
     data = list(struct.unpack_from("!{0}B".format(datalen), bytestream, 7))
-    rval['pktdata'] = data
-    rval['chksum'] = checksum(bytestream[:-2], verify=True)
-    if not rval['chksum']['ok']:
+    rval["pktdata"] = data
+    rval["chksum"] = checksum(bytestream[:-2], verify=True)
+    if not rval["chksum"]["ok"]:
         print("checksum invalid ({0} {1}, expected {2})".format(
-            hex(rval['chksum']['value'][0]), hex(rval['chksum']['value'][1]),
-            hex(rval['chksum']['expected'])))
+            hex(rval["chksum"]["value"][0]), hex(rval["chksum"]["value"][1]),
+            hex(rval["chksum"]["expected"])))
     return rval
 
 
@@ -228,7 +227,7 @@ def create_pkt(src, dest, ctrl, func, data):
     else:
         prepkt.extend([0])
     csum = checksum(prepkt, False)
-    prepkt.extend(csum['value'])
+    prepkt.extend(csum["value"])
     prepkt.extend(jfyEnder)
     pkt = struct.pack("{0}B".format(len(prepkt)), *prepkt)
     return pkt
@@ -240,11 +239,11 @@ class Inverter(threading.Thread):
     def __init__(self, inv, oneshot, debug):
         #
         # definitions we need
-        self.devname = inv['devname']
-        self.usesstore = inv['usesstore']
-        self.apikey = inv['apikey']
-        self.sysid = inv['sysid']
-        self.logpath = inv['logpath']
+        self.devname = inv["devname"]
+        self.usesstore = inv["usesstore"]
+        self.apikey = inv["apikey"]
+        self.sysid = inv["sysid"]
+        self.logpath = inv["logpath"]
         self.oneshot = oneshot
         starttime = datetime.datetime.now()
         # for rotating the logfile
@@ -278,7 +277,7 @@ class Inverter(threading.Thread):
             # the largest packet received is 64 bytes *following* the
             # 7 bytes of header content.
             time.sleep(1)
-            rpkt = self.dev.read_until(terminator=b'\n\r')
+            rpkt = self.dev.read_until(expected=b'\n\r')
             if len(rpkt) > 0:
                 if self.debug:
                     print("response {0}".format(rpkt))
@@ -330,8 +329,8 @@ class Inverter(threading.Thread):
         """ Queries the inverter for instantaneous data. """
 
         # We assume that the inverter is online;
-        pkt = create_pkt(APid, self.idx, CtrlCodes['Read'],
-                         ReadCodes['QueryNormalInfo'], data=None)
+        pkt = create_pkt(APid, self.idx, CtrlCodes["Read"],
+                         ReadCodes["QueryNormalInfo"], data=None)
 
         inpkt = self.xfer_pkt(pkt)
 
@@ -341,11 +340,11 @@ class Inverter(threading.Thread):
             return
         response = decode_pkt(inpkt)
         # Boo - didn't get a valid packet
-        if not response or not response['chksum']['ok']:
+        if not response or not response["chksum"]["ok"]:
             return dict(zip(JFYData, JFYEmpty))
 
         rvals = []
-        normalinfo = response['pktdata']
+        normalinfo = response["pktdata"]
         # See comment atop definition of JFYData. We return the un-scaled
         # data; our output functions handle scaling for us.
         for idx in range(0, 16, 2):
@@ -393,10 +392,10 @@ class Inverter(threading.Thread):
         valdata = {
             'd': curtime.strftime("%Y%m%d"),                 # date
             't': curtime.strftime("%H:%M"),                  # time
-            'v1': vals['energyGenerated'] / JFYDivisors[4],  # energy
-            'v2': vals['powerGenerated'] / JFYDivisors[1],   # power
-            'v5': vals['temperature'] / JFYDivisors[0],      # temperature
-            'v6': vals['voltageDC'] / JFYDivisors[2]         # Vdc
+            'v1': vals["energyGenerated"] / JFYDivisors[4],  # energy
+            'v2': vals["powerGenerated"] / JFYDivisors[1],   # power
+            'v5': vals["temperature"] / JFYDivisors[0],      # temperature
+            'v6': vals["voltageDC"] / JFYDivisors[2]         # Vdc
         }
         data = urllib.parse.urlencode(valdata)
         data = data.encode("ascii")
@@ -431,18 +430,20 @@ class Inverter(threading.Thread):
         # AddressConfirm
         # Inverter sends ACK:
         #     src=N, dest=1, ctrl=0x31, func=0xbe, datalen=1, data=jfyAck
+        print("Registration process started at ", datetime.datetime.now(),
+              file=sys.stderr)
         next_inv = max(_INVERTER_MAP.keys()) + 1
         if next_inv > 253:
             print("Too many ({0} > 253) inverters attached.".format(next_inv),
                   file=sys.stderr)
             return
-        pkt = create_pkt(APid, bcast, CtrlCodes['Register'],
-                         RegisterCodes['ReRegister'],
+        pkt = create_pkt(APid, bcast, CtrlCodes["Register"],
+                         RegisterCodes["ReRegister"],
                          data=None)
 
         inpkt = self.xfer_pkt(pkt)
-        pkt = create_pkt(APid, bcast, CtrlCodes['Register'],
-                         RegisterCodes['OfflineQuery'],
+        pkt = create_pkt(APid, bcast, CtrlCodes["Register"],
+                         RegisterCodes["OfflineQuery"],
                          data=None)
         inpkt = self.xfer_pkt(pkt)
         response = decode_pkt(inpkt)
@@ -450,15 +451,15 @@ class Inverter(threading.Thread):
             print("Empty response from decode_pkt (1)")
             return
         # Sanity-check the packet values
-        if response['src'] != 0 or \
-           response['dest'] != 0 or \
-           response['ctrl'] != CtrlCodes['Register'] or \
-           not response['chksum']['ok']:
+        if response["src"] != 0 or \
+           response["dest"] != 0 or \
+           response["ctrl"] != CtrlCodes["Register"] or \
+           not response["chksum"]["ok"]:
             # Garbage from this inverter, fail out
             print("Got garbage response (1)  {0}".format(response))
             return
         # Packet seems ok, let's build the next
-        self.serial = response['pktdata']
+        self.serial = response["pktdata"]
         self.hr_serial = "".join([chr(s) for s in self.serial if s in charset])
 
         # remove any trailing whitespace
@@ -469,8 +470,8 @@ class Inverter(threading.Thread):
         # We do this in two steps so that create_pkt generates things correctly
         serial_reg = self.serial
         serial_reg.append(next_inv)
-        pkt = create_pkt(APid, bcast, CtrlCodes['Register'],
-                         RegisterCodes['SendRegisterAddress'],
+        pkt = create_pkt(APid, bcast, CtrlCodes["Register"],
+                         RegisterCodes["SendRegisterAddress"],
                          data=serial_reg)
         inpkt = self.xfer_pkt(pkt)
         response = decode_pkt(inpkt)
@@ -478,11 +479,11 @@ class Inverter(threading.Thread):
         if not response:
             print("Empty response from decode_pkt (2)")
             return
-        if response['src'] != next_inv or \
-           response['dest'] != APid or \
-           response['ctrl'] != CtrlCodes['Register'] or \
-           not response['chksum']['ok'] or \
-           response['pktdata'][0] != jfyAck:
+        if response["src"] != next_inv or \
+           response["dest"] != APid or \
+           response["ctrl"] != CtrlCodes["Register"] or \
+           not response["chksum"]["ok"] or \
+           response["pktdata"][0] != jfyAck:
             # Garbage from this inverter, fail out
             print("Got garbage response (2): {0}".format(response))
             return
@@ -490,6 +491,8 @@ class Inverter(threading.Thread):
         self.idx = next_inv
         print("Registration succeeded for device with "
               "serial number {0} on {1}".format(self.hr_serial, self.devname))
+        print("Registration process ended at ", datetime.datetime.now(),
+              file=sys.stderr)        
         return
 
     def setup_sstore(self):
@@ -540,8 +543,9 @@ class Inverter(threading.Thread):
         #
         # Can we open the device, at 9600/8/n/1?
         try:
-            self.dev = serialposix.PosixPollSerial(port=self.devname,
-                                                   timeout=1, exclusive=True)
+            self.dev = serialposix.Serial(port=self.devname,
+                                          timeout=10,
+                                          exclusive=True)
         except ValueError as valex:
             print("Unable to exclusively open {0} with default "
                   "9600/8/n/1 parameters: {1}".format(
@@ -553,6 +557,8 @@ class Inverter(threading.Thread):
             print("{0} : {1}".format(serex.errno, serex.strerror))
             return
 
+        self.dev.reset_input_buffer()
+        self.dev.reset_output_buffer()
         # Register with the inverter
         self.register()
         if not self.isreg:
@@ -633,19 +639,19 @@ def parseargs(arglist):
     if '-F' not in dopts:
         usage(True)
     else:
-        cfgfile = dopts['-F']
+        cfgfile = dopts["-F"]
 
     if '-l' not in dopts:
         usage(True)
     else:
-        logpath = dopts['-l']
+        logpath = dopts["-l"]
     if len(extra) > 0:
         usage(True)
 
     if '-o' in dopts:
         daemonize = False
     if '-x' in dopts:
-        readcode = dopts['-x']
+        readcode = dopts["-x"]
         daemonize = False
 
     if '-d' in dopts:
@@ -661,27 +667,28 @@ def parse_cfg(cfgfile, logpath):
     if len(cfg.sections()) < 2 or not cfg["global"]:
         # Not enough sections
         print("Supplied configuration file {0} is incorrectly formed:\n"
-              "no [global] section found".format(cfgfile), file=sys.stderr)
-    usesstore = cfg['global']['usesstore'] or False
+              "no [global] section found".format(cfgfile),
+              file=sys.stderr)
+    usesstore = cfg["global"].getboolean("usesstore")
     # Now to deal with the inverters
     cfg.remove_section("global")
     rlist = list()
     for invsect in cfg.sections():
         inv = {}
-        inv['usesstore'] = usesstore
-        inv['devname'] = cfg[invsect]['devname']
+        inv["usesstore"] = usesstore
+        inv["devname"] = cfg[invsect]["devname"]
         if cfg.has_option(invsect, "pvoutput_apikey"):
-            inv['apikey'] = cfg[invsect]['pvoutput_apikey']
+            inv["apikey"] = cfg[invsect]["pvoutput_apikey"]
         else:
-            inv['apikey'] = None
+            inv["apikey"] = None
         if cfg.has_option(invsect, "pvoutput_sysid"):
-            inv['sysid'] = cfg[invsect]['pvoutput_sysid']
+            inv["sysid"] = cfg[invsect]["pvoutput_sysid"]
         else:
-            inv['sysid'] = None
+            inv["sysid"] = None
         if cfg.has_option(invsect, "logpath"):
-            inv['logpath'] = cfg[invsect]['logpath']
+            inv["logpath"] = cfg[invsect]["logpath"]
         else:
-            inv['logpath'] = logpath
+            inv["logpath"] = logpath
         rlist.append(inv)
     return rlist
 
